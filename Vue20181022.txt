@@ -1,0 +1,210 @@
+淘宝cnpm安装
+	npm install -g cnpm --registry=https://registry.npm.taobao.org
+
+查看已安装的npm
+	npm list --depth=0
+	npm list --depth=0 -g
+	npm list 
+	npm list -g
+
+安装vue
+	npm install vue -g
+安装vue-cli
+	npm install vue-cli -g
+安装vue-router路由
+	npm install vue-router -g
+
+安装webpack
+	npm install webpack -g
+安装webpack-cli
+	npm install webpack-cli -g
+
+安装 sass -----
+	cnpm install node-sass --save-dev 
+	cnpm install sass-loader --save-dev
+
+------------------------------------------
+利用webpack创建vue
+	vue init webpack-simple {}  简单版
+配置项
+webpack配置文件 webpack.config.js  
+1、入口文件
+	entry:'',
+2、build创建文件的配置
+	output: {
+	path:
+	publicPath:
+	filename:    文件名
+	}
+3、module 其他配置
+	rules:   配置loader
+		过滤文件loader: 'babel-loader',// es6=> es5 ??
+	devServer: 临时服务、热更新
+4、判断是否进行js压缩
+
+package.json 配置npm
+执行npm install 下载所有依赖包
+
+------------------------------------------
+利用webpack完整创建vue
+	1、cmd配置 {
+		vue init webpack {}  完整版
+		router? 是否需要路由
+		ESLint?是否需要严格代码规范
+		set up unit test with karma + mocha? 单体测试 测试代码
+		set up e2e tests with nightwatch ?  综合测试， 测试HTML
+	},
+	2、package.json 配置文件 {
+		可执行的 npm 命令
+		"scripts": {
+			运行临时服务器
+			"dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+			运行临时服务器
+			"start": "npm run dev",
+			单体测试，代码接口
+			"unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
+			综合测试，
+			"e2e": "node test/e2e/runner.js",
+			两个测试
+			"test": "npm run unit && npm run e2e",
+			生成文件 编译 { npm run build }
+			"build": "node build/build.js",
+			build 生成的文件也只有用服务器运行  本地不能运行
+			{	cd dist
+				cnpm i -g http-server
+				hs
+				}						
+
+			测试编码规范  可通过build/webpack.base.conf.js 配置
+			"lint":""
+		},
+	}
+	3、项目入口 main.js {
+		// 控制log 是否打印
+		Vue.config.productionTip = false
+
+		router, //路由
+
+		compoments: {},  // 组件 (零件、要素、部件)
+
+		template: '<app/>' // 模板
+	}
+	4、主HTML文件 index.HTML
+
+---------------------------------------
+vue生命周期
+	beforeCreate  
+		整个页面初始化后，this指向实例，组件未挂载，无法访问methods、data、computed上的方法
+			==》》用于初始化非响应式变量
+	created       
+		实例完成创建，可以访问data、computed、watch、methods上的数据方法，未挂载dom，不能访问$el，$ref属性内容为空数组
+			==》》通常在这里进行实例的预处理，如ajax
+	beforeMount 
+		在挂载钱调用；相关的render函数被首次调用  
+			==》》 -
+	mounted 
+		实例挂载到dom上，此时可以通过dom api 获取到dom节点 $ref属性可以访问  
+			==》》常用于获取vnode信息和操作，ajax请求
+	beforeupdate 
+		数据更新前调用，发生在dom重新渲染之前，你可以在这个钩子中进一步地更改状态，这不会触发附加的重渲染过程
+			==》》适合在更新之前访问现有的DOM，比如手动移除已添加的事件监听器
+	updated 
+		由于数据更改导致的虚拟 DOM 重新渲染和打补丁，在这之后会调用该钩子。当这个钩子被调用时，组件 DOM 已经更新，所以你现在可以执行依赖于 DOM 的操作
+			==》》在大多数情况下，你应该避免在此期间更改状态，因为这可能会导致更新无限循环。
+	beforeDestroy 
+		实例销毁之前调用。在这一步，实例仍然完全可用。
+			==》》常用于销毁定时器、解绑全局事件、销毁插件对象等操作
+	destroyed 
+		Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+
+
+	这张流程图还是有用的，因为它是我从Vue官网上拷贝下来的，只要你能理解了这张图，也就对Vue的生命周期有了一个大致的了解。
+	在谈到Vue的生命周期的时候，我们首先需要创建一个实例，也就是在 new Vue ( ) 的对象过程当中，首先执行了init（init是vue组件里面默认去执行的），在init的过程当中
+	首先调用了---beforeCreate---，然后在injections（注射）和reactivity（反应性）的时候，它会再去调用---created---。
+	所以在init的时候，事件已经调用了，我们在---beforeCreate---的时候千万不要去修改data里面赋值的数据，最早也要放在---created---里面去做（添加一些行为）。
+	当---created---完成之后，它会去判断instance（实例）里面是否含有“el”option（选项），如果没有的话，它会调用---vm.$mount(el)---这个方法，然后执行下一步；如果有的话，直接执行下一步。
+	紧接着会判断是否含有---“template”---这个选项，如果有的话，它会把template解析成一个---render function ---，这是一个template编译的过程，结果是解析成了render函数：
+		render (h) {
+		return h('div', {}, this.text)
+		}
+	解释一下，render函数里面的传参h就是Vue里面的---createElement---方法，return返回一个createElement方法，其中要传3个参数，第一个参数就是创建的div标签；
+	第二个参数传了一个对象，对象里面可以是我们组件上面的---props---，或者是事件之类的东西；第三个参数就是div标签里面的内容，这里我们指向了data里面的text。
+	使用render函数的结果和我们之前使用template解析出来的结果是一样的。--render--函数是发生在---beforeMount---和---mounted---之间的，
+	这也从侧面说明了，在---beforeMount---的时候，$el还只是我们在HTML里面写的节点，然后到---mounted---的时候，它就把渲染出来的内容挂载到了DOM节点上。
+	这中间的过程其实是执行了render function的内容。
+	在使用.vue文件开发的过程当中，我们在里面写了---template---模板，在经过了---vue-loader---的处理之后，就变成了render function，最终放到了vue-loader解析过的文件里面。
+	这样做有什么好处呢？原因是由于在解析template变成render function的过程，是一个非常耗时的过程，vue-loader帮我们处理了这些内容之后，当我们在页面上执行vue代码的时候，效率会变得更高。
+
+	---beforeMount---在有了render function的时候才会执行，当执行完render function之后，就会调用---mounted---这个钩子，在mounted挂载完毕之后，这个实例就算是走完流程了。
+
+
+	后续的钩子函数执行的过程都是需要外部的触发才会执行。比如说有数据的变化，会调用beforeUpdate，然后经过Virtual DOM，最后updated更新完毕。
+	当组件被销毁的时候，它会调用beforeDestory，以及destoryed。
+	这就是vue实例从新建到销毁的一个完整流程，以及在这个过程中它会触发哪些生命周期的钩子函数。那说到这儿，可能很多童鞋会问，钩子函数是什么意思？
+	钩子函数，其实和回调是一个概念，当系统执行到某处时，检查是否有hook，有则回调。
+	说的更直白一点，每个组件都有属性，方法和事件。所有的生命周期都归于事件，在某个时刻自动执行。
+
+
+	其实，当你跟面试官阐述到这儿的时候，面试官基本上已经满意你的回答了，隐约看到了你的技术功底。
+	当然，如果你还想更进一步，让面试官对你刮目相看，达到加分的效果，你还可以这样说：
+	在这个过程当中，Vue为我们提供了renderError方法，这个方法只有在开发的时候它才会被调用，在正式打包上线的过程当中，它是不会被调用的。它主要是帮助我们调试render里面的一些错误。
+	如图所示，渲染出来的就是Error信息了。还有一点，renderError只有在本组件的render方法报错的情况下它才会被调用。
+
+
+---------------------------------------------
+router路由 
+	快速实现单页面应用    在不同的url显示不同的组件
+	
+	main.js   // 中使用router   
+
+	router/index.js 
+		import Vue from 'vue'  //导入vue
+		import Router from 'vue-router'  // 导入vue-router
+		import HelloWorld from '@/components/HelloWorld'
+		// @  是webpack.base.conf.js 中定义的路径
+		//    		'@': resolve('src'),
+
+		Vue.use(Router)   // 必须说明使用router
+		// 不同路劲使用不同组件
+		export default new Router({
+			routers: [{
+				path: '/',
+				name: '',
+				compoment:   // 组件
+				//  二级路由
+				children: [{   
+					path:'aaaa',
+					compoment: aaaa
+				},
+				{
+					path: '/',
+					redirect: '/asd',
+					或者 redirect: {name:''}
+				}]
+			}]
+		})
+
+		路由组件加载在根组件（App）的 <router-view></router-view> 的位置上
+		二级路由和多级路由都需要在上一级路由留位置 <router-view></router-view> 
+
+		路由重定向   redirect
+		<router-link ></router-link> 路由跳转导航
+
+		动态路由匹配  
+		传值 router.push(`/myapplist/${index}`)    // 动态路由匹配
+		路由配置 path: '/myapplist/:id',    // 动态路由匹配
+		通过 {{$route.params.id}}   获取值 
+
+
+		#   符号  路由配置中加入 
+		mode: 'history',  // #  没有 #  符号
+		** 做好后台正确配置 **
+
+--------------------------------------
+vuex 状态管理模式 
+
+
+
+
+
+
